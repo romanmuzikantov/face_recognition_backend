@@ -27,11 +27,11 @@ app.post('/image', async (req: Request, res: Response) => {
         res.send({
             boundingBoxes,
         } as PostImageResponse);
+    } else {
+        res.status(400).send({
+            message: "Missing required 'URL' field in body.",
+        });
     }
-
-    res.status(400).send({
-        message: "Missing required 'URL' field in body.",
-    });
 });
 
 app.listen(3001, () => {
