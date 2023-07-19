@@ -1,6 +1,6 @@
 interface User {
     login: string;
-    password: string;
+    hash: string;
     attempts: number;
 }
 

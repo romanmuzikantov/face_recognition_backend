@@ -1,4 +1,5 @@
 import User from '../../models/User';
+import bcrypt from 'bcrypt';
 
 class UserRepository {
     private users: User[];
@@ -7,7 +8,7 @@ class UserRepository {
         this.users = [];
     }
 
-    registerUser(login: string, password: string): User | Error {
+    async registerUser(login: string, password: string): Promise<User | Error> {
         const result = this.users.filter((value) => {
             return value.login === login;
         });
@@ -19,9 +20,11 @@ class UserRepository {
             } as Error;
         }
 
+        const hash = await bcrypt.hash(password, 10);
+
         const newUser: User = {
             login,
-            password,
+            hash,
             attempts: 0,
         };
         this.users.push(newUser);
@@ -29,7 +32,7 @@ class UserRepository {
         return newUser;
     }
 
-    loginUser(login: string, password: string): User | Error {
+    async loginUser(login: string, password: string): Promise<User | Error> {
         const result = this.users.filter((value) => {
             return value.login === login;
         });
@@ -37,11 +40,22 @@ class UserRepository {
         if (result.length === 0) {
             return {
                 code: 400,
-                message: 'User not found.',
+                message: 'Username or Password is incorrect.',
             } as Error;
         }
 
-        return result[0];
+        const user = result[0];
+
+        const isPasswordValid = await bcrypt.compare(password, user.hash);
+
+        if (!isPasswordValid) {
+            return {
+                code: 400,
+                message: 'Username or Password is incorrect.',
+            } as Error;
+        }
+
+        return user;
     }
 }
 
