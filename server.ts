@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import FindFacesInImage from './repository/network/ClarifaiApi.js';
 import cors from 'cors';
+import UserRepository from './repository/db/UserRepository.js';
 
 const app = express();
 
@@ -8,7 +9,6 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/image', async (req: Request, res: Response) => {
-    console.log(req);
     const imageUrl = req.body.imageUrl;
 
     if (typeof imageUrl === 'string') {
@@ -32,6 +32,70 @@ app.post('/image', async (req: Request, res: Response) => {
             message: "Missing required 'URL' field in body.",
         });
     }
+});
+
+app.post('/register', (req: Request, res: Response) => {
+    const login = req.body.login;
+    const password = req.body.password;
+
+    if (typeof login !== 'string') {
+        res.status(400).send({
+            message: 'Login is missing or is in the wrong type (should be a string).',
+        });
+        return;
+    }
+
+    if (typeof password !== 'string') {
+        res.status(400).send({
+            message: 'Password is missing or is in the wrong type (should be a string).',
+        });
+        return;
+    }
+
+    const userRepository = new UserRepository();
+
+    const result = userRepository.registerUser(login, password);
+
+    if (result instanceof Error) {
+        res.status(result.code).send({
+            message: result.message,
+        });
+        return;
+    }
+
+    res.send(result);
+});
+
+app.post('/login', (req: Request, res: Response) => {
+    const login = req.body.login;
+    const password = req.body.password;
+
+    if (typeof login !== 'string') {
+        res.status(400).send({
+            message: 'Login is missing or is in the wrong type (should be a string).',
+        });
+        return;
+    }
+
+    if (typeof password !== 'string') {
+        res.status(400).send({
+            message: 'Password is missing or is in the wrong type (should be a string).',
+        });
+        return;
+    }
+
+    const userRepository = new UserRepository();
+
+    const result = userRepository.loginUser(login, password);
+
+    if (result instanceof Error) {
+        res.status(result.code).send({
+            message: result.message,
+        });
+        return;
+    }
+
+    res.send(result);
 });
 
 app.listen(3001, () => {
