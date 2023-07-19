@@ -26,6 +26,7 @@ class UserRepository {
             login,
             hash,
             attempts: 0,
+            createdOn: new Date(),
         };
         this.users.push(newUser);
 
