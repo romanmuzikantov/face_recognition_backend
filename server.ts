@@ -34,7 +34,7 @@ app.post('/image', async (req: Request, res: Response) => {
     }
 });
 
-app.post('/register', (req: Request, res: Response) => {
+app.post('/register', async (req: Request, res: Response) => {
     const login = req.body.login;
     const password = req.body.password;
 
@@ -54,7 +54,7 @@ app.post('/register', (req: Request, res: Response) => {
 
     const userRepository = new UserRepository();
 
-    const result = userRepository.registerUser(login, password);
+    const result = await userRepository.registerUser(login, password);
 
     if (result instanceof Error) {
         res.status(result.code).send({
@@ -66,7 +66,7 @@ app.post('/register', (req: Request, res: Response) => {
     res.send(result);
 });
 
-app.post('/login', (req: Request, res: Response) => {
+app.post('/login', async (req: Request, res: Response) => {
     const login = req.body.login;
     const password = req.body.password;
 
@@ -86,7 +86,7 @@ app.post('/login', (req: Request, res: Response) => {
 
     const userRepository = new UserRepository();
 
-    const result = userRepository.loginUser(login, password);
+    const result = await userRepository.loginUser(login, password);
 
     if (result instanceof Error) {
         res.status(result.code).send({
