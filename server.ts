@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import FindFacesInImage from './repository/network/ClarifaiApi.js';
 import cors from 'cors';
 import UserRepository from './repository/db/UserRepository.js';
+import dotenv from 'dotenv';
 
 const app = express();
 
@@ -99,5 +100,6 @@ app.post('/login', async (req: Request, res: Response) => {
 });
 
 app.listen(3001, () => {
+    dotenv.config();
     console.log('Server is running on port 3001');
 });

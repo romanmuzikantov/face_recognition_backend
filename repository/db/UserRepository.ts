@@ -1,60 +1,63 @@
-import User from '../../models/User';
+import UserDatabase from '../../database/UserDatabase.js';
 import bcrypt from 'bcrypt';
 
 class UserRepository {
-    private users: User[];
-
-    constructor() {
-        this.users = [];
-    }
-
-    async registerUser(login: string, password: string): Promise<User | Error> {
-        const result = this.users.filter((value) => {
-            return value.login === login;
-        });
-
-        if (result.length > 0) {
-            return {
-                code: 400,
-                message: 'This login is already used.',
-            } as Error;
-        }
-
+    async registerUser(login: string, password: string): Promise<UserDbo | Error> {
         const hash = await bcrypt.hash(password, 10);
 
-        const newUser: User = {
-            login,
-            hash,
-            attempts: 0,
-            createdOn: new Date(),
+        const newUser: UserDbo = {
+            id: undefined,
+            username: login,
+            entries: 0,
+            joined: new Date(),
         };
-        this.users.push(newUser);
+
+        const newLogin: LoginDbo = {
+            id: undefined,
+            username: login,
+            hash,
+        };
+
+        const userDatabase: UserDatabase = new UserDatabase();
+        userDatabase.insertUser(newUser);
+        userDatabase.insertLogin(newLogin);
 
         return newUser;
     }
 
-    async loginUser(login: string, password: string): Promise<User | Error> {
-        const result = this.users.filter((value) => {
-            return value.login === login;
-        });
+    async loginUser(username: string, password: string): Promise<UserDbo | Error> {
+        const userDatabase: UserDatabase = new UserDatabase();
 
-        if (result.length === 0) {
+        const loginSqlResult = await userDatabase.getLogin(username);
+
+        if (loginSqlResult.length === 0) {
             return {
                 code: 400,
-                message: 'Username or Password is incorrect.',
+                message: 'Username or password is incorrect',
             } as Error;
         }
 
-        const user = result[0];
+        const login = loginSqlResult[0];
 
-        const isPasswordValid = await bcrypt.compare(password, user.hash);
+        const isPasswordValid = await bcrypt.compare(password, login.hash);
 
         if (!isPasswordValid) {
             return {
                 code: 400,
-                message: 'Username or Password is incorrect.',
+                message: 'Username or password is incorrect.',
             } as Error;
         }
+
+        const userSqlResult = await userDatabase.getUser(username);
+
+        if (userSqlResult.length === 0) {
+            return {
+                code: 500,
+                message: 'Unexpected error occured.',
+            } as Error;
+        }
+
+        const user = userSqlResult[0];
 
         return user;
     }
