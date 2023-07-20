@@ -3,6 +3,7 @@ import FindFacesInImage from './repository/network/ClarifaiApi.js';
 import cors from 'cors';
 import UserRepository from './repository/db/UserRepository.js';
 import dotenv from 'dotenv';
+import { isError } from './models/Error.js';
 
 const app = express();
 
@@ -57,7 +58,7 @@ app.post('/register', async (req: Request, res: Response) => {
 
     const result = await userRepository.registerUser(login, password);
 
-    if (result instanceof Error) {
+    if (isError(result)) {
         res.status(result.code).send({
             message: result.message,
         });
@@ -89,7 +90,7 @@ app.post('/login', async (req: Request, res: Response) => {
 
     const result = await userRepository.loginUser(login, password);
 
-    if (result instanceof Error) {
+    if (isError(result)) {
         res.status(result.code).send({
             message: result.message,
         });

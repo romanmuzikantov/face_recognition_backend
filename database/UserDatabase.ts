@@ -1,4 +1,5 @@
 import knex, { Knex } from 'knex';
+import { DatabaseError } from '../models/DatabaseError';
 
 class UserDatabase {
     private db: Knex;
@@ -17,36 +18,34 @@ class UserDatabase {
         });
     }
 
-    insertUser(user: UserDbo) {
-        this.db('users')
-            .insert({
+    async insertUser(user: UserDbo): Promise<DatabaseError | number[]> {
+        try {
+            const result = await this.db('users').insert({
                 username: user.username,
                 joined: user.joined,
-            })
-            .then(
-                (value) => {
-                    console.log(value);
-                },
-                (reason) => {
-                    console.log(reason);
-                }
-            );
+            });
+
+            return result;
+        } catch (error: any) {
+            console.error(error);
+
+            return error as DatabaseError;
+        }
     }
 
-    insertLogin(login: LoginDbo) {
-        this.db('login')
-            .insert({
+    async insertLogin(login: LoginDbo): Promise<DatabaseError | number[]> {
+        try {
+            const result = await this.db('login').insert({
                 username: login.username,
                 hash: login.hash,
-            })
-            .then(
-                (value) => {
-                    console.log(value);
-                },
-                (reason) => {
-                    console.log(reason);
-                }
-            );
+            });
+
+            return result;
+        } catch (error: any) {
+            console.error(error);
+
+            return error as DatabaseError;
+        }
     }
 
     async getLogin(username: string): Promise<LoginDbo[]> {
