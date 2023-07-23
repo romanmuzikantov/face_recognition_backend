@@ -18,6 +18,40 @@ class UserDatabase {
         });
     }
 
+    async insertNewUser(user: UserDbo, login: LoginDbo): Promise<DatabaseError | UserDbo> {
+        return await this.db.transaction(async (trx) => {
+            try {
+                const userInsert = this.db('users')
+                    .insert({
+                        username: user.username,
+                        joined: user.joined,
+                    })
+                    .transacting(trx)
+                    .returning('id');
+
+                const loginInsert = this.db('login')
+                    .insert({
+                        username: login.username,
+                        hash: login.hash,
+                    })
+                    .transacting(trx);
+
+                await loginInsert;
+                const result = await userInsert;
+                user.id = result[0].id;
+
+                trx.commit;
+
+                return user;
+            } catch (error: any) {
+                console.error(error);
+                trx.rollback;
+
+                return error as DatabaseError;
+            }
+        });
+    }
+
     async insertUser(user: UserDbo): Promise<DatabaseError | number[]> {
         try {
             const result = await this.db('users').insert({

@@ -22,7 +22,7 @@ class UserRepository {
 
         const userDatabase: UserDatabase = new UserDatabase();
 
-        const insertUserResult = await userDatabase.insertUser(newUser);
+        const insertUserResult = await userDatabase.insertNewUser(newUser, newLogin);
 
         if (isDatabaseError(insertUserResult)) {
             if (insertUserResult.constraint === 'users_username_key') {
@@ -38,37 +38,14 @@ class UserRepository {
             }
         }
 
-        if (insertUserResult.length === 0) {
+        if (insertUserResult.id === undefined) {
             return {
                 code: 500,
                 message: 'User could not be created.',
             } as Error;
         }
 
-        const insertLoginResult = await userDatabase.insertLogin(newLogin);
-
-        if (isDatabaseError(insertLoginResult)) {
-            if (insertLoginResult.constraint === 'login_username_key') {
-                return {
-                    code: 400,
-                    message: 'This login already exists.',
-                } as Error;
-            } else {
-                return {
-                    code: 500,
-                    message: 'An unexpected error occured.',
-                } as Error;
-            }
-        }
-
-        if (insertLoginResult.length === 0) {
-            return {
-                code: 500,
-                message: 'Login could not be created.',
-            } as Error;
-        }
-
-        return newUser;
+        return insertUserResult;
     }
 
     async loginUser(username: string, password: string): Promise<UserDbo | Error> {
