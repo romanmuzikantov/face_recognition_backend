@@ -52,36 +52,6 @@ class UserDatabase {
         });
     }
 
-    async insertUser(user: UserDbo): Promise<DatabaseError | number[]> {
-        try {
-            const result = await this.db('users').insert({
-                username: user.username,
-                joined: user.joined,
-            });
-
-            return result;
-        } catch (error: any) {
-            console.error(error);
-
-            return error as DatabaseError;
-        }
-    }
-
-    async insertLogin(login: LoginDbo): Promise<DatabaseError | number[]> {
-        try {
-            const result = await this.db('login').insert({
-                username: login.username,
-                hash: login.hash,
-            });
-
-            return result;
-        } catch (error: any) {
-            console.error(error);
-
-            return error as DatabaseError;
-        }
-    }
-
     async getLogin(username: string): Promise<LoginDbo[]> {
         const result = await this.db
             .select('*')
