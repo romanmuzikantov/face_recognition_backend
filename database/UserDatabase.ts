@@ -66,10 +66,13 @@ class UserDatabase {
     }
 
     async IncrementEntries(userId: number): Promise<number> {
-        const result = await this.db('users').where('id', '=', userId).increment({
-            entries: 1,
-        });
-        return result;
+        const result = await this.db('users')
+            .where('id', '=', userId)
+            .increment({
+                entries: 1,
+            })
+            .returning('entries');
+        return +result[0].entries;
     }
 }
 
