@@ -87,6 +87,14 @@ class UserRepository {
 
         return user;
     }
+
+    async incrementUserEntries(userId: number): Promise<number> {
+        const userDatabase = new UserDatabase();
+
+        const result = await userDatabase.IncrementEntries(userId);
+
+        return result;
+    }
 }
 
 export default UserRepository;

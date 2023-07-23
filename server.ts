@@ -100,6 +100,25 @@ app.post('/login', async (req: Request, res: Response) => {
     res.send(result);
 });
 
+app.put('/entries', async (req: Request, res: Response) => {
+    const userId = req.body.userId;
+
+    if (typeof userId !== 'number') {
+        res.status(400).send({
+            message: 'userId is missing or is in the wrong type (should be a number).',
+        });
+        return;
+    }
+
+    const userRepository = new UserRepository();
+
+    const result = await userRepository.incrementUserEntries(userId);
+
+    res.send({
+        entries: result,
+    });
+});
+
 app.listen(3001, () => {
     dotenv.config();
     console.log('Server is running on port 3001');

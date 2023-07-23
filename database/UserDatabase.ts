@@ -64,6 +64,13 @@ class UserDatabase {
         const result = await this.db.select('*').from<UserDbo>('users').where('username', username);
         return result;
     }
+
+    async IncrementEntries(userId: number): Promise<number> {
+        const result = await this.db('users').where('id', '=', userId).increment({
+            entries: 1,
+        });
+        return result;
+    }
 }
 
 export default UserDatabase;
