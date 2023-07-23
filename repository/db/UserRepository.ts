@@ -25,7 +25,10 @@ class UserRepository {
         const insertUserResult = await userDatabase.insertNewUser(newUser, newLogin);
 
         if (isDatabaseError(insertUserResult)) {
-            if (insertUserResult.constraint === 'users_username_key') {
+            if (
+                insertUserResult.constraint === 'users_username_key' ||
+                insertUserResult.constraint === 'login_username_key'
+            ) {
                 return {
                     code: 400,
                     message: 'This user already exists.',
