@@ -4,16 +4,14 @@ import { DatabaseError } from '../models/DatabaseError';
 class UserDatabase {
     private db: Knex;
 
+    private DB_CONNECTION_STRING =
+        process.env.DATABASE_URL ||
+        `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslmode=disable`;
+
     constructor() {
         this.db = knex({
             client: 'pg',
-            connection: {
-                host: process.env.DB_HOST,
-                user: process.env.DB_USER,
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_NAME,
-                port: +process.env.DB_PORT!,
-            },
+            connection: this.DB_CONNECTION_STRING,
             pool: { min: 0, max: 7 },
         });
     }
@@ -24,6 +22,7 @@ class UserDatabase {
                 const userInsert = this.db('users')
                     .insert({
                         username: user.username,
+                        entries: 0,
                         joined: user.joined,
                     })
                     .transacting(trx)
